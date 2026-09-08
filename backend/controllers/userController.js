@@ -48,6 +48,53 @@ const registeruser = async(req,res) => {
 }
 
 
+
+const loginuser = async(req,res)=>{
+
+    try {
+        const {email,password} = req.body;
+
+        if(!email || !password){
+            return res.status(400).json({
+                message:"Email and Password required"
+            })
+        }
+
+        const user = await usermodel.findOne({ email });
+
+        if(!user){
+            return res.status(400).json({
+                message:"Wrong Email"
+            })
+        }
+
+        const checkpass = await bcrypt.compare(password,user.password)
+
+        let token = createToken(user._id)
+
+        if(!checkpass){
+            return res.status(400).json({
+                message:"Wrong Password"
+            })
+        }
+
+        return res.status(200).json({
+            message:"Login Successfull",
+            user,
+            token
+        })
+
+    } catch (error) {
+         console.error(error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong. Please try again."
+        });
+    }
+}
+
+
 const createToken = (id) =>{
     return jwt.sign({id},process.env.JWT_SECRECT,{expiresIn:"7d"})
 }
@@ -56,5 +103,6 @@ const createToken = (id) =>{
 
 
 module.exports = {
-    registeruser
+    registeruser,
+    loginuser
 }

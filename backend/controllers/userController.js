@@ -95,6 +95,18 @@ const loginuser = async(req,res)=>{
 }
 
 
+
+
+const getprofile = async(req,res)=>{
+    let {id} = req.user 
+    try {
+        let userdata = await usermodel.findById(id)
+       return res.status(200).json({userdata})
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const createToken = (id) =>{
     return jwt.sign({id},process.env.JWT_SECRECT,{expiresIn:"7d"})
 }
@@ -104,5 +116,6 @@ const createToken = (id) =>{
 
 module.exports = {
     registeruser,
-    loginuser
+    loginuser,
+    getprofile,
 }

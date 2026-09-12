@@ -3,10 +3,10 @@ const usermodel = require('../models/userModel');
 
 const protectRoute = async(req,res,next) =>{
     try {
-        if(req.headers.authorization && req.headers.authorization.startWith('Bearer')){
+        if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){
             let token = req.headers.authorization.split(' ')[1];
             let verifytoken = await jwt.verify(token,process.env.JWT_SECRECT)
-            req.user = await usermodel.findById(verifytoken._id)
+            req.user = await usermodel.findById(verifytoken.id)
             next();
         }else{
             return res.status(400).json({

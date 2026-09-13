@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState } from 'react';
 import '../index.css'; // Import the CSS file
 import toast from 'react-hot-toast';
@@ -23,58 +22,10 @@ const LoginPage = () => {
     } catch (error) {
       console.log('error',error)
       toast.error(error.response?.data?.message)
-=======
-import React, { useState } from "react";
-import { ShoppingBag, Shirt, Coffee, Watch, Lamp, Eye, EyeOff } from "lucide-react";
-import axios from "axios";
-import toast from "react-hot-toast";
-import {useNavigate} from 'react-router-dom'
-
-// const TAGS = [
-//   { icon: ShoppingBag, name: "Canvas Tote", cat: "Bags", price: "$38.00" },
-//   { icon: Shirt, name: "Field Jacket", cat: "Outerwear", price: "$128.00" },
-//   { icon: Coffee, name: "Camp Mug", cat: "Home", price: "$22.00" },
-//   { icon: Watch, name: "Trail Watch", cat: "Accessories", price: "$96.00" },
-//   { icon: Lamp, name: "Desk Lamp", cat: "Home", price: "$64.00" },
-// ];
-
-export default function Login({ onSwitchToSignup }) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "", remember: false });
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
-
-  const update = (key) => (e) =>
-    setForm((f) => ({ ...f, [key]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
-
-  const handleSubmit = async(e) => {
-    e.preventDefault();
-    if (!form.email || !form.password) {
-      setError("Enter your email and password to continue.");
-      return;
-    }
-    setError("");
-    try {
-      const res = await axios.post('http://localhost:5000/auth/login',
-        {email:form.email,password:form.password})
-      toast.success(res.data.message)
-      localStorage.setItem('Token',res.data.Token)
-        navigate('/')
-      console.log('res',res)
-    } catch (error) {
-     if (error.response) {
-      toast.error(
-        error.response.data.message || `Error ${error.response.status}`
-      )
-    } else {
-      toast.error('Unable to connect to server')
-    }
->>>>>>> e800080 (connect user to header)
     }
   };
 
   return (
-<<<<<<< HEAD
     <div className="auth-container login-wrapper">
       {/* Left Side: Image */}
       <div className="login-image-side">
@@ -153,7 +104,6 @@ export default function Login({ onSwitchToSignup }) {
 };
 
 export default LoginPage;
-=======
     <div className="gs-auth">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
@@ -429,7 +379,7 @@ export default LoginPage;
 
       <aside className="gs-wall">
         <div className="gs-wall-brand">
-          <ShoppingBag />
+          {/* <ShoppingBag /> */}
           <span>GOODSTOCK</span>
         </div>
         <div className="gs-track-wrap">
@@ -503,6 +453,3 @@ export default LoginPage;
         </form>
       </main>
     </div>
-  );
-}
->>>>>>> e800080 (connect user to header)

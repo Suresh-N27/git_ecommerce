@@ -2,6 +2,7 @@ import { useContext, useEffect } from 'react'
 import axios from 'axios'
 import Header from '../components/Header'
 import { userContext } from '../context/userContext'
+import ProductListingPage from './ProductListingPage'
 
 const Productspage = () => {
 
@@ -32,7 +33,11 @@ const Productspage = () => {
 
 
   return (
-    <div><Header/></div>
+    <div>
+      <Header/>
+            <ProductListingPage/>
+
+    </div>
   )
 }
 

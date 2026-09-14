@@ -1,109 +1,82 @@
 import React, { useState } from 'react';
-import '../index.css'; // Import the CSS file
+import '../index.css';
 import toast from 'react-hot-toast';
-import axios from 'axios'
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-    const navigate = useNavigate()
+const LoginPage = ({ onSwitchToSignup = () => {} }) => {
+  const navigate = useNavigate();
 
-  const handleSubmit = async(e) => {
+  const [form, setForm] = useState({
+    email: '',
+    password: '',
+    remember: false,
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const update = (field) => (e) => {
+    const value =
+      e.target.type === 'checkbox'
+        ? e.target.checked
+        : e.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    if (field === 'email' || field === 'password') {
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
+
+    setError('');
+    setLoading(true);
+
     try {
-      let response = await axios.post('http://localhost:5000/auth/login',
-          {email,password})
-          if(response.status == 200){
-            toast.success(response?.data?.message)
-            navigate('/')
-            localStorage.setItem('Token',response?.data?.token)
-          }
-    } catch (error) {
-      console.log('error',error)
-      toast.error(error.response?.data?.message)
+      const response = await axios.post(
+        'http://localhost:5000/auth/login',
+        {
+          email: form.email.trim(),
+          password: form.password,
+        }
+      );
+
+      if (response.status === 200) {
+        const message = response?.data?.message || 'Login successful';
+        const token = response?.data?.token;
+
+        if (token) {
+          localStorage.setItem('Token', token);
+        }
+
+        toast.success(message);
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Login failed. Please try again.';
+
+      setError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="auth-container login-wrapper">
-      {/* Left Side: Image */}
-      <div className="login-image-side">
-        <img 
-          src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80" 
-          alt="Fashion Lifestyle" 
-        />
-        <div className="login-overlay-text">
-          <h2 style={{ margin: '0 0 10px 0', color: '#1f2937' }}>Welcome Back</h2>
-          <p style={{ margin: 0, color: '#4b5563' }}>
-            Discover the latest trends and exclusive offers tailored just for you.
-          </p>
-        </div>
-      </div>
-
-      {/* Right Side: Form */}
-      <div className="login-form-side">
-        <div style={{ width: '100%', maxWidth: '400px' }}>
-          
-          <div className="form-header">
-            <h1>Sign In</h1>
-            <p>
-              Or <a href="/signup" className="link-text">create a new account</a>
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Email Address</label>
-              <div className="input-wrapper">
-                {/* Mail Icon SVG */}
-                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                <input 
-                  type="email" 
-                  className="form-input" 
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <div className="input-wrapper">
-                {/* Lock Icon SVG */}
-                <svg className="input-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                <input 
-                  type="password" 
-                  className="form-input" 
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <label className="checkbox-group" style={{ margin: 0 }}>
-                <input type="checkbox" />
-                Remember me
-              </label>
-              <a href="#" className="link-text" style={{ fontSize: '0.875rem' }}>Forgot password?</a>
-            </div>
-
-            <button type="submit" className="btn-primary">
-              Sign in
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default LoginPage;
     <div className="gs-auth">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
@@ -406,11 +379,21 @@ export default LoginPage;
         <form className="gs-card" onSubmit={handleSubmit}>
           <p className="gs-eyebrow">LOGIN</p>
           <h1 className="gs-heading">Good to see you again</h1>
-          <p className="gs-sub">Sign in to pick up your cart, track orders, and check your saved list.</p>
+          <p className="gs-sub">
+            Sign in to pick up your cart, track orders, and check your saved list.
+          </p>
 
           <div className="gs-field">
             <label htmlFor="email">Email</label>
-            <input id="email" type="email" placeholder="you@example.com" value={form.email} onChange={update("email")} />
+            <input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={update("email")}
+              autoComplete="email"
+              required
+            />
           </div>
 
           <div className="gs-field">
@@ -422,9 +405,31 @@ export default LoginPage;
                 placeholder="••••••••"
                 value={form.password}
                 onChange={update("password")}
+                autoComplete="current-password"
+                required
               />
-              <button type="button" className="gs-eye-btn" onClick={() => setShowPassword((s) => !s)} aria-label="Toggle password visibility">
-                {showPassword ? <EyeOff /> : <Eye />}
+
+              <button
+                type="button"
+                className="gs-eye-btn"
+                onClick={() => setShowPassword((s) => !s)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 3l18 18" />
+                    <path d="M10.58 10.58a2 2 0 0 0 2.83 2.83" />
+                    <path d="M9.88 4.24A9.77 9.77 0 0 1 12 4c5 0 8.73 4.11 10 8-0.47 1.41-1.23 2.72-2.2 3.83" />
+                    <path d="M6.61 6.61C4.62 7.85 3.28 9.72 2 12c1.27 3.89 5 8 10 8 1.61 0 3.09-.4 4.39-1.09" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
               </button>
             </div>
           </div>
@@ -433,23 +438,43 @@ export default LoginPage;
 
           <div className="gs-row">
             <label className="gs-remember">
-              <input type="checkbox" checked={form.remember} onChange={update("remember")} />
+              <input
+                type="checkbox"
+                checked={form.remember}
+                onChange={update("remember")}
+              />
               Remember me
             </label>
-            <a className="gs-link" href="#forgot">Forgot password?</a>
+
+            <a className="gs-link" href="#forgot">
+              Forgot password?
+            </a>
           </div>
 
-          <button type="submit" className="gs-cta">
+          <button type="submit" className="gs-cta" disabled={loading}>
             <span className="gs-cta-hole"><span /></span>
-            <span className="gs-cta-label">Sign in</span>
+            <span className="gs-cta-label">
+              {loading ? "Signing in..." : "Sign in"}
+            </span>
           </button>
 
-     
+          <div className="gs-divider">OR</div>
+
+          <div className="gs-social">
+            <button type="button">Google</button>
+            <button type="button">Apple</button>
+          </div>
 
           <p className="gs-switch">
             New here?{" "}
-            <a className="gs-link" href="#signup" onClick={onSwitchToSignup}>Create an account</a>
+            <a className="gs-link" href="#signup" onClick={onSwitchToSignup}>
+              Create an account
+            </a>
           </p>
         </form>
       </main>
     </div>
+  );
+};
+
+export default LoginPage;
